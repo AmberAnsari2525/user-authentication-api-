@@ -8,12 +8,18 @@ export const SignIn = () => {
         password: '',
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+
     const handleChange = (e) => {
         setFormdata({ ...formdata, [e.target.name]: e.target.value });
     };
 
+    const handleTogglePassword = () => {
+        setShowPassword(!showPassword);
+    };
+
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevents the default form submission behavior
+        e.preventDefault();
 
         const requestObj = {
             email: formdata.email,
@@ -75,7 +81,7 @@ export const SignIn = () => {
                                     <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
                                 </span>
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={formdata.password}
                                     onChange={handleChange}
@@ -85,8 +91,8 @@ export const SignIn = () => {
                                 />
                             </div>
                             <span
-                                className="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
-                                data-toggle="#your-password"
+                                onClick={handleTogglePassword}
+                                className={`toggle-password cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light ${showPassword ? 'ri-eye-off-line' : 'ri-eye-line'}`}
                             ></span>
                         </div>
                         <div className="">
@@ -133,4 +139,4 @@ export const SignIn = () => {
             </div>
         </section>
     );
-}
+};

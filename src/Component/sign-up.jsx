@@ -8,6 +8,12 @@ export const Signup = () => {
         email: "",
         password: "",
     });
+    const [passwordshow, setpasswordshow] = useState(false);
+    const handleTogglePassword = () =>{
+        setpasswordshow (!passwordshow);
+    }
+
+
 
     const handleChange = (e) => {
         setformdata({ ...formdata, [e.target.name]: e.target.value });
@@ -91,7 +97,7 @@ export const Signup = () => {
                                         <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
                                     </span>
                                     <input
-                                        type="password"
+                                        type={passwordshow ? "text" : "password"}
                                         name="password"
                                         value={formdata.password}
                                         onChange={handleChange}
@@ -100,7 +106,9 @@ export const Signup = () => {
                                         placeholder="Password"
                                     />
                                 </div>
-                                <span className="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light" data-toggle="#your-password"></span>
+                                <span onClick={handleTogglePassword}
+                                    className={`toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light ${ passwordshow ? 'ri-eye-off-line' : 'ri-eye-line'}`}>
+                                    </span>
                             </div>
                             <span className="mt-3 text-sm text-secondary-light" style={{ marginLeft: -168 }}>Your password must have at least 8 characters.</span>
                         </div>
@@ -131,7 +139,7 @@ export const Signup = () => {
                             </button>
                         </div>
                         <div className="mt-4 text-center text-sm">
-                            <p className="mb-0">Already have an account? <Link to="/signin" className="text-primary-600 fw-semibold">Sign In</Link></p>
+                            <p className="mb-0">Already have an account? <Link to="/sign-in" className="text-primary-600 fw-semibold">Sign In</Link></p>
                         </div>
                     </form>
                 </div>
