@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 export const SignIn = () => {
+    const navigate = useNavigate();
     const [formdata, setFormdata] = useState({
         email: '',
         password: '',
@@ -37,6 +39,7 @@ export const SignIn = () => {
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
                 console.log('Login successful:', response.data);
+                navigate("/profile")
             } else {
                 console.error('Error fetching data:', response.statusText);
             }

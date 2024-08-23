@@ -1,26 +1,52 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-
+import {useNavigate} from "react-router-dom";
 export const Signup = () => {
-    const [formdata, setformdata] = useState({
+    const navigate = useNavigate();
+    const [error, setError] = useState("");
+    const [formdata, setFormdata] = useState({
         name: "",
         email: "",
         password: "",
     });
-    const [passwordshow, setpasswordshow] = useState(false);
-    const handleTogglePassword = () =>{
-        setpasswordshow (!passwordshow);
-    }
+    const [passwordshow, setPasswordshow] = useState(false);
 
-
+    const handleTogglePassword = () => {
+        setPasswordshow(!passwordshow);
+    };
 
     const handleChange = (e) => {
-        setformdata({ ...formdata, [e.target.name]: e.target.value });
+        setFormdata({ ...formdata, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevents the default form submission behavior
+        if (!formdata.name){
+            setError("Name is required");
+            console.log("Error: Name is required")
+            return;
+        }
+        if (!formdata.email){
+            setError("Email is required");
+            console.log("Error: Email is required");
+            return;
+        }
+        if (!formdata.password){
+            setError("Password is required")
+            console.log("Error: Password is required")
+            return;
+        }
+        if (formdata.password.length < 8) {
+            setError("Password must be at least 8 characters");
+            console.log("Error: Password must be at least 8 characters");
+            return;
+        }
+        else {
+            setError(""); // Clear the error if the password is valid
+        }
+
+
 
         const requestObj = {
             name: formdata.name,
@@ -36,16 +62,24 @@ export const Signup = () => {
                 requestObj,
                 { headers }
             );
-            if (response.status === 200) {
+
+            // If signup is successful and there are no errors
+            if (response.status === 200 && !response.data.errors) {
                 localStorage.setItem('token', response.data.token);
                 console.log('SignUp successful:', response.data);
-            } else {
-                console.error('Error fetching data:', response.statusText);
+                setError(""); // Clear any previous error
+                navigate("/profile"); // Navigate to profile page
+            } else if (response.data.errors && response.data.errors.email) {
+                setError("Email already exists");
+                console.error('SignUp error:', response.data.errors.email);
             }
         } catch (error) {
+            setError("An error occurred. Please try again later.");
             console.error('SignUp error:', error.response);
         }
     };
+
+
 
     return (
         <section className="auth bg-base d-flex flex-wrap">
@@ -56,12 +90,16 @@ export const Signup = () => {
             </div>
             <div className="auth-right py-4 px-3 d-flex flex-column justify-content-center">
                 <div className="max-w-464-px mx-auto w-100">
+
                     <div style={{ textAlign: 'left' }}>
                         <Link to="/index.html" className="mb-4 max-w-290-px">
                             <img src="/assets/images/logo.png" alt="Logo" />
                         </Link>
                         <h4 className="mb-3">Sign Up to your Account</h4>
                         <p className="mb-4 text-secondary-light text-lg">Welcome back! Please enter your details.</p>
+                    </div>
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    <div>
                     </div>
                     <form onSubmit={handleSubmit}>
                         <div className="icon-field mb-3">
@@ -107,8 +145,8 @@ export const Signup = () => {
                                     />
                                 </div>
                                 <span onClick={handleTogglePassword}
-                                    className={`toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light ${ passwordshow ? 'ri-eye-off-line' : 'ri-eye-line'}`}>
-                                    </span>
+                                    className={`toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light ${passwordshow ? 'ri-eye-off-line' : 'ri-eye-line'}`}>
+                                </span>
                             </div>
                             <span className="mt-3 text-sm text-secondary-light" style={{ marginLeft: -168 }}>Your password must have at least 8 characters.</span>
                         </div>
