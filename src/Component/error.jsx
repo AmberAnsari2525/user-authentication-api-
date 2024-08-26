@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const Myerror = () => {
+export const Errorpage= () => {
  
   return (
     

@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import {AuthContext} from "../Contex/authcontex";
+
 export const Signup = () => {
     const navigate = useNavigate();
-    const [error, setError] = useState("");
-    const [formdata, setFormdata] = useState({
-        name: "",
-        email: "",
-        password: "",
-    });
+    const { signup, error } = useContext(AuthContext);
+    const [userData, setUserData] = useState({ name: '', email: '', password: '' });
     const [passwordshow, setPasswordshow] = useState(false);
 
     const handleTogglePassword = () => {
@@ -17,68 +14,17 @@ export const Signup = () => {
     };
 
     const handleChange = (e) => {
-        setFormdata({ ...formdata, [e.target.name]: e.target.value });
+        setUserData({ ...userData, [e.target.name]: e.target.value });
     };
-
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevents the default form submission behavior
-        if (!formdata.name){
-            setError("Name is required");
-            console.log("Error: Name is required")
-            return;
-        }
-        if (!formdata.email){
-            setError("Email is required");
-            console.log("Error: Email is required");
-            return;
-        }
-        if (!formdata.password){
-            setError("Password is required")
-            console.log("Error: Password is required")
-            return;
-        }
-        if (formdata.password.length < 8) {
-            setError("Password must be at least 8 characters");
-            console.log("Error: Password must be at least 8 characters");
-            return;
-        }
-        else {
-            setError(""); // Clear the error if the password is valid
-        }
-
-
-
-        const requestObj = {
-            name: formdata.name,
-            email: formdata.email,
-            password: formdata.password,
-        };
-
-        const headers = { "Content-Type": "application/json" };
-
+        e.preventDefault();
         try {
-            const response = await axios.post(
-                "https://jwtauth.techxdeveloper.com/api/register",
-                requestObj,
-                { headers }
-            );
-
-            // If signup is successful and there are no errors
-            if (response.status === 200 && !response.data.errors) {
-                localStorage.setItem('token', response.data.token);
-                console.log('SignUp successful:', response.data);
-                setError(""); // Clear any previous error
-                navigate("/profile"); // Navigate to profile page
-            } else if (response.data.errors && response.data.errors.email) {
-                setError("Email already exists");
-                console.error('SignUp error:', response.data.errors.email);
-            }
-        } catch (error) {
-            setError("An error occurred. Please try again later.");
-            console.error('SignUp error:', error.response);
+            await signup (userData);
+            navigate('/profile');
+        } catch (err) {
+            console.error('Registration error:', err);
         }
     };
-
 
 
     return (
@@ -90,7 +36,6 @@ export const Signup = () => {
             </div>
             <div className="auth-right py-4 px-3 d-flex flex-column justify-content-center">
                 <div className="max-w-464-px mx-auto w-100">
-
                     <div style={{ textAlign: 'left' }}>
                         <Link to="/index.html" className="mb-4 max-w-290-px">
                             <img src="/assets/images/logo.png" alt="Logo" />
@@ -99,8 +44,6 @@ export const Signup = () => {
                         <p className="mb-4 text-secondary-light text-lg">Welcome back! Please enter your details.</p>
                     </div>
                     {error && <p style={{ color: "red" }}>{error}</p>}
-                    <div>
-                    </div>
                     <form onSubmit={handleSubmit}>
                         <div className="icon-field mb-3">
                             <span className="icon top-50 translate-middle-y">
@@ -110,7 +53,7 @@ export const Signup = () => {
                                 type="text"
                                 name="name"
                                 onChange={handleChange}
-                                value={formdata.name}
+                                value={userData.name}
                                 className="form-control h-56-px bg-neutral-50 rounded-3"
                                 placeholder="Username"
                             />
@@ -123,7 +66,7 @@ export const Signup = () => {
                                 type="email"
                                 name="email"
                                 onChange={handleChange}
-                                value={formdata.email}
+                                value={userData.email}
                                 className="form-control h-56-px bg-neutral-50 rounded-3"
                                 placeholder="Email"
                             />
@@ -137,30 +80,19 @@ export const Signup = () => {
                                     <input
                                         type={passwordshow ? "text" : "password"}
                                         name="password"
-                                        value={formdata.password}
+                                        value={userData.password}
                                         onChange={handleChange}
                                         className="form-control h-56-px bg-neutral-50 rounded-3"
                                         id="your-password"
                                         placeholder="Password"
+                                        required
                                     />
                                 </div>
                                 <span onClick={handleTogglePassword}
-                                    className={`toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light ${passwordshow ? 'ri-eye-off-line' : 'ri-eye-line'}`}>
+                                      className={`toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light ${passwordshow ? 'ri-eye-off-line' : 'ri-eye-line'}`}>
                                 </span>
                             </div>
-                            <span className="mt-3 text-sm text-secondary-light" style={{ marginLeft: -168 }}>Your password must have at least 8 characters.</span>
-                        </div>
-                        <div>
-                            <div className="d-flex justify-content-between gap-2">
-                                <div className="form-check d-flex align-items-start">
-                                    <input className="form-check-input border border-neutral-300 mt-1" type="checkbox" value="" id="condition" />
-                                    <label className="form-check-label text-sm ms-2" htmlFor="condition">
-                                        By creating an account, you agree to the
-                                        <Link to="/javascript:void(0)" className="text-primary-600 fw-semibold">Terms & Conditions</Link> and our
-                                        <Link to="/javascript:void(0)" className="text-primary-600 fw-semibold">Privacy Policy</Link>.
-                                    </label>
-                                </div>
-                            </div>
+                            <span className="mt-3 text-sm text-secondary-light" >Your password must have at least 8 characters.</span>
                         </div>
                         <button type="submit" className="btn btn-primary text-sm px-4 py-3 w-100 rounded-3 mt-4">Sign Up</button>
                         <div className="mt-4 text-center">

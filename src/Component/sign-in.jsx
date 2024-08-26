@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {AuthContext} from "../Contex/authcontex";
 
 export const SignIn = () => {
     const navigate = useNavigate();
+    const {Login , error} =useContext(AuthContext);
     const [formdata, setFormdata] = useState({
         email: '',
         password: '',
@@ -22,30 +24,9 @@ export const SignIn = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        await Login (formdata);
 
-        const requestObj = {
-            email: formdata.email,
-            password: formdata.password,
-        };
 
-        const headers = { "Content-Type": "application/json" };
-
-        try {
-            const response = await axios.post(
-                "https://jwtauth.techxdeveloper.com/api/login",
-                requestObj,
-                { headers }
-            );
-            if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
-                console.log('Login successful:', response.data);
-                navigate("/profile")
-            } else {
-                console.error('Error fetching data:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Login error:', error.response);
-        }
     };
 
     return (

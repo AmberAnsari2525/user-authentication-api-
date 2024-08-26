@@ -3,15 +3,20 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export const Profile = () => {
-  const [profiledata, setProfiledata] = useState({
-    name: "",
-    email: "",
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    number: '',
+    department: '',
+    designation: '',
+    language: '',
+    description: ''
   });
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token'); // Retrieve the token from local storage
 
       if (!token) {
         setError('No token found in local storage.');
@@ -19,36 +24,41 @@ export const Profile = () => {
       }
 
       try {
-        const response = await fetch("https://jwtauth.techxdeveloper.com/api/user", {
+        const response = await axios.get('https://jwtauth.techxdeveloper.com/api/user', {
           headers: {
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch profile.');
-        }
-
-        const result = await response.json();
-        setProfiledata(result.user);
-        console.log(result.user);
-
+        setProfile(response.data.user);
+        console.log(response.data.user);
       } catch (error) {
-        setError(error.message);
+        if (error.response) {
+          // Access the response data and other error properties
+          const status = error.response.status;
+          const message = error.response.data.message || 'An error occurred';
+          setError(`Server responded with status ${status}: ${message}`);
+        } else if (error.request) {
+          setError('No response received from server.');
+        } else {
+          setError(`Error setting up request: ${error.message}`);
+        }
       }
     };
 
     fetchProfile();
   }, []);
 
-  const handleChange = (e) =>{
-    const {id, value} = e.target;
-    setProfiledata((data)=>({ ...data, [id]: value }));
+  // Handle input changes
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      [id]: value
+    }));
+  };
 
-  }
   // Handle form submission
-  const handleUpdate = async () => {
+  const handleSubmit = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -60,7 +70,7 @@ export const Profile = () => {
           Authorization: `Bearer ${token}`
         }
       };
-      const response = await axios.post('https://jwtauth.techxdeveloper.com/api/user/update', profiledata, config);
+      const response = await axios.post('https://jwtauth.techxdeveloper.com/api/user/update', profile, config);
 
       // Handle success
       console.log('User updated successfully', response.data);
@@ -96,7 +106,7 @@ export const Profile = () => {
                 <div className="col-lg-12">
                   <div className="alert alert-danger">{error}</div>
                 </div>
-            ) : profiledata ? (
+            ) : profile ? (
                 <div className="col-lg-4">
                   <div className="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
                     <img src="/assets/images/user-grid/user-grid-bg1.png" alt="" className="w-100 object-fit-cover"/>
@@ -104,40 +114,39 @@ export const Profile = () => {
                       <div className="text-center border border-top-0 border-start-0 border-end-0">
                         <img src="/assets/images/user-grid/user-grid-img14.png" alt=""
                              className="border br-white border-width-2-px w-200-px h-200-px rounded-circle object-fit-cover"/>
-                        <h6 className="mb-0 mt-16">{profiledata?.name}</h6>
-
-                        <span className="text-secondary-light mb-16">{profiledata?.email}</span>
+                        <h6 className="mb-0 mt-16">{profile?.name}</h6>
+                        <span className="text-secondary-light mb-16">{profile?.email}</span>
                       </div>
                       <div className="mt-24">
                         <h6 className="text-xl mb-16">Personal Info</h6>
                         <ul>
                           <li className="d-flex align-items-center gap-1 mb-12">
                             <span className="w-30 text-md fw-semibold text-primary-light">Full Name</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.name}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.name}</span>
                           </li>
                           <li className="d-flex align-items-center gap-1 mb-12">
                             <span className="w-30 text-md fw-semibold text-primary-light">Email</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.email}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.email}</span>
                           </li>
                           <li className="d-flex align-items-center gap-1 mb-12">
                             <span className="w-30 text-md fw-semibold text-primary-light">Phone Number</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.PhoneNumber}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.number}</span>
                           </li>
                           <li className="d-flex align-items-center gap-1 mb-12">
                             <span className="w-30 text-md fw-semibold text-primary-light">Department</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.Department}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.department}</span>
                           </li>
                           <li className="d-flex align-items-center gap-1 mb-12">
                             <span className="w-30 text-md fw-semibold text-primary-light">Designation</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.Designation}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.designation}</span>
                           </li>
                           <li className="d-flex align-items-center gap-1 mb-12">
                             <span className="w-30 text-md fw-semibold text-primary-light">Languages</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.Languages}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.language}</span>
                           </li>
                           <li className="d-flex align-items-center gap-1">
                             <span className="w-30 text-md fw-semibold text-primary-light">Bio</span>
-                            <span className="w-70 text-secondary-light fw-medium">: {profiledata?.Bio}</span>
+                            <span className="w-70 text-secondary-light fw-medium">: {profile?.description}</span>
                           </li>
                         </ul>
                       </div>
@@ -185,196 +194,70 @@ export const Profile = () => {
                           <div className="avatar-edit position-absolute bottom-0 end-0 me-24 mt-16 z-1 cursor-pointer">
                             <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" hidden/>
                             <label htmlFor="imageUpload"
-                                   className="w-32-px h-32-px d-flex justify-content-center align-items-center bg-primary-50 text-primary-600 border border-primary-600 bg-hover-primary-100 text-lg rounded-circle">
-                              <iconify-icon icon="solar:camera-outline" className="icon"></iconify-icon>
+                                   className="w-32-px h-32-px d-flex justify-content-center align-items-center bg-primary-50 text-primary-600 radius-16">
+                              <iconify-icon icon="fluent:edit-16-regular"></iconify-icon>
                             </label>
                           </div>
-                          <div className="avatar-preview">
-                            <div id="imagePreview">
-                            </div>
-                          </div>
+                          <img src="/assets/images/user-grid/user-grid-img14.png" alt="" className="w-200-px h-200-px rounded-circle object-fit-cover"/>
                         </div>
                       </div>
-                      <form action="#">
+
+                      <form>
                         <div className="row">
-                          <div className="col-sm-6">
-                            <div className="mb-20">
-                              <label htmlFor="name" className="form-label fw-semibold text-primary-light text-sm mb-8">Full
-                                Name <span className="text-danger-600">*</span></label>
-                              <input
-                                  type="text"
-                                  className="form-control radius-8"
-                                  id="name"
-                                  value={profiledata?.name}
-                                  placeholder="Enter Full Name"
-                                  onChange={handleChange}
-                              />
-                            </div>
+                          <div className="col-md-6 mb-24">
+                            <label htmlFor="name" className="form-label">Full Name</label>
+                            <input type="text" className="form-control" id="name" value={profile.name} onChange={handleChange}/>
                           </div>
-                          <div className="col-sm-6">
-                            <div className="mb-20">
-                              <label htmlFor="email"
-                                     className="form-label fw-semibold text-primary-light text-sm mb-8">Email <span
-                                  className="text-danger-600">*</span></label>
-                              <input
-                                  type="email"
-                                  className="form-control radius-8"
-                                  id="email"
-                                  value={profiledata?.email}
-                                  placeholder="Enter email address"
-                                  onChange={handleChange}
-
-
-                              />
-                            </div>
+                          <div className="col-md-6 mb-24">
+                            <label htmlFor="email" className="form-label">Email Address</label>
+                            <input type="email" className="form-control" id="email" value={profile.email} onChange={handleChange}/>
                           </div>
-                          <div className="col-sm-6">
-                            <div className="mb-20">
-                              <label htmlFor="number"
-                                     className="form-label fw-semibold text-primary-light text-sm mb-8">Phone</label>
-                              <input type="email" className="form-control radius-8" id="number"
-                                     placeholder="Enter phone number"/>
-                            </div>
+                          <div className="col-md-6 mb-24">
+                            <label htmlFor="number" className="form-label">Phone Number</label>
+                            <input type="text" className="form-control" id="number" value={profile.number} onChange={handleChange}/>
                           </div>
-                          <div className="col-sm-6">
-                            <div className="mb-20">
-                              <label htmlFor="depart"
-                                     className="form-label fw-semibold text-primary-light text-sm mb-8">Department <span
-                                  className="text-danger-600">*</span> </label>
-                              <select className="form-control radius-8 form-select" id="depart">
-                                <option>Enter Event Title</option>
-                                <option>Enter Event Title One</option>
-                                <option>Enter Event Title Two</option>
-                              </select>
-                            </div>
+                          <div className="col-md-6 mb-24">
+                            <label htmlFor="department" className="form-label">Department</label>
+                            <input type="text" className="form-control" id="department" value={profile.department} onChange={handleChange}/>
                           </div>
-                          <div className="col-sm-6">
-                            <div className="mb-20">
-                              <label htmlFor="desig"
-                                     className="form-label fw-semibold text-primary-light text-sm mb-8">Designation <span
-                                  className="text-danger-600">*</span> </label>
-                              <select className="form-control radius-8 form-select" id="desig">
-                                <option>Enter Designation Title</option>
-                                <option>Enter Designation Title One</option>
-                                <option>Enter Designation Title Two</option>
-                              </select>
-                            </div>
+                          <div className="col-md-6 mb-24">
+                            <label htmlFor="designation" className="form-label">Designation</label>
+                            <input type="text" className="form-control" id="designation" value={profile.designation} onChange={handleChange}/>
                           </div>
-                          <div className="col-sm-6">
-                            <div className="mb-20">
-                              <label htmlFor="Language"
-                                     className="form-label fw-semibold text-primary-light text-sm mb-8">Language <span
-                                  className="text-danger-600">*</span> </label>
-                              <select className="form-control radius-8 form-select" id="Language">
-                                <option> English</option>
-                                <option> Bangla</option>
-                                <option> Hindi</option>
-                                <option> Arabic</option>
-                              </select>
-                            </div>
+                          <div className="col-md-6 mb-24">
+                            <label htmlFor="language" className="form-label">Languages</label>
+                            <input type="text" className="form-control" id="language" value={profile.language} onChange={handleChange}/>
                           </div>
-                          <div className="col-sm-12">
-                            <div className="mb-20">
-                              <label htmlFor="desc"
-                                     className="form-label fw-semibold text-primary-light text-sm mb-8">Description</label>
-                              <textarea name="#0" className="form-control radius-8" id="desc"
-                                        placeholder="Write description..."></textarea>
-                            </div>
+                          <div className="col-md-12 mb-24">
+                            <label htmlFor="description" className="form-label">Bio</label>
+                            <textarea className="form-control" id="description" rows="4" value={profile.description} onChange={handleChange}></textarea>
                           </div>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-center gap-3">
-                          <button type="button"
-                                  className="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
-                            Cancel
-                          </button>
-                          <button type="button" onClick={handleUpdate}
-                                  className="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8">
-                            Save
-                          </button>
+                          <div className="col-md-12 text-end">
+                            <button
+                                type="button"
+                                className="btn btn-primary border border-primary-600 text-md px-56 py-11 radius-8"
+                                onClick={handleSubmit}
+                            >
+                              Save
+                            </button>
+                          </div>
                         </div>
                       </form>
                     </div>
-
                     <div className="tab-pane fade" id="pills-change-passwork" role="tabpanel"
                          aria-labelledby="pills-change-passwork-tab" tabIndex="0">
-                      <div className="mb-20">
-                        <label htmlFor="your-password"
-                               className="form-label fw-semibold text-primary-light text-sm mb-8">New Password <span
-                            className="text-danger-600">*</span></label>
-                        <div className="position-relative">
-                          <input type="password" className="form-control radius-8" id="your-password"
-                                 placeholder="Enter New Password*"/>
-                          <span
-                              className="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
-                              data-toggle="#your-password"></span>
-                        </div>
-                      </div>
-                      <div className="mb-20">
-                        <label htmlFor="confirm-password"
-                               className="form-label fw-semibold text-primary-light text-sm mb-8">Confirmed
-                          Password <span className="text-danger-600">*</span></label>
-                        <div className="position-relative">
-                          <input type="password" className="form-control radius-8" id="confirm-password"
-                                 placeholder="Confirm Password*"/>
-                          <span
-                              className="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
-                              data-toggle="#confirm-password"></span>
-                        </div>
-                      </div>
+                      {/* Change Password Content */}
                     </div>
-
                     <div className="tab-pane fade" id="pills-notification" role="tabpanel"
                          aria-labelledby="pills-notification-tab" tabIndex="0">
-                      <div className="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                        <label htmlFor="companzNew" className="position-absolute w-100 h-100 start-0 top-0"></label>
-                        <div className="d-flex align-items-center gap-3 justify-content-between">
-                          <span
-                              className="form-check-label line-height-1 fw-medium text-secondary-light">Company News</span>
-                          <input className="form-check-input" type="checkbox" role="switch" id="companzNew"/>
-                        </div>
-                      </div>
-                      <div className="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                        <label htmlFor="pushNotifcation"
-                               className="position-absolute w-100 h-100 start-0 top-0"></label>
-                        <div className="d-flex align-items-center gap-3 justify-content-between">
-                          <span className="form-check-label line-height-1 fw-medium text-secondary-light">Push Notification</span>
-                          <input className="form-check-input" type="checkbox" role="switch" id="pushNotifcation"
-                                 checked/>
-                        </div>
-                      </div>
-                      <div className="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                        <label htmlFor="weeklyLetters" className="position-absolute w-100 h-100 start-0 top-0"></label>
-                        <div className="d-flex align-items-center gap-3 justify-content-between">
-                          <span className="form-check-label line-height-1 fw-medium text-secondary-light">Weekly News Letters</span>
-                          <input className="form-check-input" type="checkbox" role="switch" id="weeklyLetters" checked/>
-                        </div>
-                      </div>
-                      <div className="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                        <label htmlFor="meetUp" className="position-absolute w-100 h-100 start-0 top-0"></label>
-                        <div className="d-flex align-items-center gap-3 justify-content-between">
-                          <span className="form-check-label line-height-1 fw-medium text-secondary-light">Meetups Near you</span>
-                          <input className="form-check-input" type="checkbox" role="switch" id="meetUp"/>
-                        </div>
-                      </div>
-                      <div className="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                        <label htmlFor="orderNotification"
-                               className="position-absolute w-100 h-100 start-0 top-0"></label>
-                        <div className="d-flex align-items-center gap-3 justify-content-between">
-                          <span className="form-check-label line-height-1 fw-medium text-secondary-light">Orders Notifications</span>
-                          <input className="form-check-input" type="checkbox" role="switch" id="orderNotification"
-                                 checked/>
-                        </div>
-                      </div>
+                      {/* Notification Settings Content */}
                     </div>
-
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </main>
-
-  )
-}
+  );
+};
