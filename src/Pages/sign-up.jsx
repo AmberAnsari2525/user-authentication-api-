@@ -16,15 +16,20 @@ export const Signup = () => {
     const handleChange = (e) => {
         setUserData({ ...userData, [e.target.name]: e.target.value });
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await signup (userData);
+            const response = await signup(userData); // Assuming signup returns a response with a token
+            const { token } = response.data; // Adjust based on actual response
+            localStorage.setItem('token', token); // Store token in local storage
             navigate('/profile');
         } catch (err) {
             console.error('Registration error:', err);
+            // Handle error appropriately
         }
     };
+
 
 
     return (

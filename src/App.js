@@ -1,10 +1,10 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from "./Contex/authcontex";
-import { Signup } from "./Component/sign-up";
-import { SignIn } from "./Component/sign-in";
+import { Signup } from "./Pages/sign-up";
+import { SignIn } from "./Pages/sign-in";
 import { MyNavbar } from "./Component/Navbar";
-import {Profile} from "./Component/view-profile";
+import {Profile} from "./Pages/view-profile";
 
 function App() {
     return (

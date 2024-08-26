@@ -42,10 +42,12 @@ export const Profile = () => {
         } else {
           setError(`Error setting up request: ${error.message}`);
         }
+        console.error('Full error response:', error.response); // Log the full error response
       }
     };
 
     fetchProfile();
+
   }, []);
 
   // Handle input changes
